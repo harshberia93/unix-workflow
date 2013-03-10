@@ -1,0 +1,203 @@
+% © 2013 Saurabh Kumar
+%
+% use xelatex %<
+%
+\documentclass[xetex,serif,compress]{beamer}
+\usepackage{fontspec}
+\usepackage{xunicode} % Unicode extras!
+\usepackage{xltxtra}  % Fixes
+\usepackage{listings}
+\usepackage{fancyvrb}
+\setmainfont{Trebuchet MS}
+\setmonofont{Inconsolata}
+\usetheme{default}
+
+\setbeamertemplate{frametitle}{
+  \color{black}
+  \vspace*{0.5cm}
+  \hspace*{0.25cm}
+  \textbf{\insertframetitle}
+  \par
+}
+
+% Hide the navigation icons at the bottom of the page
+\setbeamertemplate{navigation symbols}{}
+
+% No margins on any side
+\setbeamersize{text margin left=0cm,text margin right=0cm}
+
+
+\begin{document}
+
+% slide with bullet points
+\newcommand{\mslide}[2]{
+  \begin{frame}{#1}
+    \begin{center}
+      \begin{list}{$\bullet$}{\itemsep=1em}
+        #2
+      \end{list}
+    \end{center}
+  \end{frame}
+}
+
+\frame{
+  \begin{center}
+    \vspace{1.5cm}
+           {\huge Unix}\\
+           {\large Philosophy and Workflow}\\
+           \vspace{3cm}
+           Saurabh Kumar\\
+           \vspace{0.5cm}
+           2013-03-10\\
+  \end{center}
+}
+
+\mslide{40+ years of Unix}{
+\item Unix was written in 1969.
+\item A unique culture and philosophy has evolved around it.
+  % Original unix utilities cat, grep, sed, still used.
+\item Small, correct programs that do one thing well.
+  % If you need to do a new job build a new program, rather than making a complicated beast.
+\item Programs should work together.
+  % Text is a universal interface.
+\item Programs should handle text, because text is a universal interface.
+}
+
+\begin{frame}{}
+  \begin{center}
+    \huge
+    Simple != Easy\\
+    \vspace{2cm}
+    \large
+    A learning curve is involved.
+  \end{center}
+\end{frame}
+
+\mslide{RTFM}{
+\item Man pages are your friend.
+\item Try it out. \texttt{man cat, man less, man tar}
+\item Man pages are divided into sections.
+\item You can search for man pages using apropos.
+\item \texttt{apropos strlen, man 3 strlen}
+}
+
+
+\mslide{CLI}{
+\item A command line interface is very powerful.
+\item \texttt{ls, mkdir foo, cd foo, touch file, cp file .., mv ../file .}
+\item \texttt{echo ``Hello'' >> file, cat file}
+\item \texttt{for i in `seq 1 100`;\\
+  do\\
+  echo "Hello"\$i >>file\\
+  done}
+\item \texttt{cat file, cat file | less}
+}
+
+\mslide{Concepts}{
+\item (Nearly)Every thing is a file.
+\item Your harddisk is \texttt{/dev/sda-z}
+\item Standard input, output are \texttt{/dev/stdin, /dev/stdout}
+\item Piping and redirection. \texttt{|, <, >, >>}
+\item \texttt{cat /dev/stdin, cat /dev/stdin >> file, cat /dev/stdin > /dev/stdout}
+\item Burning a usb image: \texttt{cat debian.iso > /dev/sdb \&\& sync}
+}
+
+\mslide{Other examples}{
+\item Download input file from \url{http://sprunge.us/cdGI} or from \url{https://raw.github.com/sa1/bisect-demo/master/3lpigs}
+\item \texttt{tr ' ' '\textbackslash{}n' < 3lpigs | sort\\ tr ' ' '\textbackslash{}n' < 3lpigs | sort | uniq -c | sort -n}
+\item \texttt{grep 'wolf' 3lpigs}
+\item \texttt{sed -i 's/wolf/wolves/g' 3lpigs}
+\item Wildcards: \texttt{ls fi*, ls *.*}
+}
+
+\mslide{Automate the boring parts}{
+\item Script what needs to be done.
+\item \texttt{\#! /usr/bin/bash\\
+ echo ``Running task'' >> file
+}
+\item \texttt{at 0430\\
+> notify-send ``Executing task''\\
+> ./script.sh}
+\item Use \texttt{cron} for scheduling periodic tasks.
+\item Startup scripts - \texttt{systemd, /etc/profile.d/, \textasciitilde{}/.xinitrc}
+}
+
+\frame{
+  \begin{center}
+    \vspace{1.5cm}
+           {\large Developer workflow}\\
+  \end{center}
+}
+
+\mslide{Unix as your IDE}{
+\item A single large IDE vs a large number of tools that work together.
+\item Edit - \texttt{vim, emacs}
+\item Build - \texttt{make}
+\item Debug - \texttt{gdb, valgrind, strace, lsof}
+\item Version Control - \texttt{git, svn, diff, patch}
+}
+
+\mslide{Editors}{
+\item Vim and Emacs
+\item Syntax highlighting, modes, macros
+\item Extensibility, plugins - lint, syntax checkers.
+\item Communicating with external programs.
+}
+
+\begin {frame}[fragile]
+  \frametitle{Make}
+%\item It's a build recipe.
+\begin{verbatim}
+            CC = gcc
+            OBJECTS = main.o example.o library.o
+            BINARY = example
+
+            all: example
+
+            example: $(OBJECTS)
+                $(CC) $(OBJECTS) -o $(BINARY)
+
+            docs: docs.html
+
+            docs.html: docs.md
+                markdown docs.md > docs.html
+
+            clean:
+                rm -f $(BINARY) $(OBJECTS)
+
+            install: example
+                cp $(BINARY) /usr/bin
+\end{verbatim}
+\end{frame}
+
+\mslide{Testing}{
+\item Use scripts to set up the environment.
+\item Scripts to test a system.
+\item Testsuites
+\item CI- Continuous Integration
+\item Build, Compile, Test, Fix, Commit.
+}
+
+\mslide {Version Control}{
+\item file1.c, file1final.c, file1\_realfinal.c
+\item \texttt{git init, echo ``Hello'' >> file, git add file, git commit}
+\item \texttt{echo ``Hello 2'' >> file, git status, git diff, git add file, git commit}
+\item \texttt{git log}
+\item Branches, diffs, patches
+}
+
+\mslide {Git Bisect}{
+\item Using binary search to find buggy commits.
+\item \texttt{git clone https://github.com/sa1/bisect-demo.git}
+\item \texttt{git log, git bisect start}
+\item \texttt{git bisect bad} to mark bad commits
+\item \texttt{git bisect good} to mark good commits.
+\item \texttt{git bisect reset} to reset.
+}
+
+\mslide{Thank you}{
+\item Feedback
+\item \url{http://klug.github.com}
+}
+
+\end{document}
